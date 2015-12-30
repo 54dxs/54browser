@@ -249,79 +249,80 @@ bool BrowserMainWindow::restoreState(const QByteArray &state)
     return true;
 }
 
+/**
+ * 设置菜单
+ */
 void BrowserMainWindow::setupMenu()
 {
     new QShortcut(QKeySequence(Qt::Key_F6), this, SLOT(slotSwapFocus()));
 
-    // File
-    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    // 一级菜单-文件
+    QMenu *fileMenu = menuBar()->addMenu(tr("文件"));
 
-    fileMenu->addAction(tr("&New Window"), this, SLOT(slotFileNew()), QKeySequence::New);
+    fileMenu->addAction(tr("新建窗口"), this, SLOT(slotFileNew()), QKeySequence::New);
     fileMenu->addAction(m_tabWidget->newTabAction());
-    fileMenu->addAction(tr("&Open File..."), this, SLOT(slotFileOpen()), QKeySequence::Open);
-    fileMenu->addAction(tr("Open &Location..."), this,
-                SLOT(slotSelectLineEdit()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
+    fileMenu->addAction(tr("打开文件..."), this, SLOT(slotFileOpen()), QKeySequence::Open);
+    fileMenu->addAction(tr("选中本地地址..."), this, SLOT(slotSelectLineEdit()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
     fileMenu->addSeparator();
     fileMenu->addAction(m_tabWidget->closeTabAction());
     fileMenu->addSeparator();
-    fileMenu->addAction(tr("&Save As..."), this,
-                SLOT(slotFileSaveAs()), QKeySequence(QKeySequence::Save));
+    fileMenu->addAction(tr("保存网页..."), this, SLOT(slotFileSaveAs()), QKeySequence(QKeySequence::Save));
     fileMenu->addSeparator();
-    BookmarksManager *bookmarksManager = BrowserApplication::bookmarksManager();
-    fileMenu->addAction(tr("&Import Bookmarks..."), bookmarksManager, SLOT(importBookmarks()));
-    fileMenu->addAction(tr("&Export Bookmarks..."), bookmarksManager, SLOT(exportBookmarks()));
+    BookmarksManager *bookmarksManager = BrowserApplication::bookmarksManager();//获得一个收藏夹管理器
+    fileMenu->addAction(tr("导入收藏夹..."), bookmarksManager, SLOT(importBookmarks()));
+    fileMenu->addAction(tr("导出收藏夹..."), bookmarksManager, SLOT(exportBookmarks()));
     fileMenu->addSeparator();
-    fileMenu->addAction(tr("P&rint Preview..."), this, SLOT(slotFilePrintPreview()));
-    fileMenu->addAction(tr("&Print..."), this, SLOT(slotFilePrint()), QKeySequence::Print);
+    fileMenu->addAction(tr("打印预览..."), this, SLOT(slotFilePrintPreview()));
+    fileMenu->addAction(tr("打印..."), this, SLOT(slotFilePrint()), QKeySequence::Print);
     fileMenu->addSeparator();
-    QAction *action = fileMenu->addAction(tr("Private &Browsing..."), this, SLOT(slotPrivateBrowsing()));
+    QAction *action = fileMenu->addAction(tr("开启隐私浏览..."), this, SLOT(slotPrivateBrowsing()));
     action->setCheckable(true);
     fileMenu->addSeparator();
 
 #if defined(Q_OS_OSX)
-    fileMenu->addAction(tr("&Quit"), BrowserApplication::instance(), SLOT(quitBrowser()), QKeySequence(Qt::CTRL | Qt::Key_Q));
+    fileMenu->addAction(tr("退出"), BrowserApplication::instance(), SLOT(quitBrowser()), QKeySequence(Qt::CTRL | Qt::Key_Q));
 #else
-    fileMenu->addAction(tr("&Quit"), this, SLOT(close()), QKeySequence(Qt::CTRL | Qt::Key_Q));
+    fileMenu->addAction(tr("退出"), this, SLOT(close()), QKeySequence(Qt::CTRL | Qt::Key_Q));
 #endif
 
-    // Edit
-    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
-    QAction *m_undo = editMenu->addAction(tr("&Undo"));
+    // 一级菜单-编辑
+    QMenu *editMenu = menuBar()->addMenu(tr("编辑"));
+    QAction *m_undo = editMenu->addAction(tr("撤消"));
     m_undo->setShortcuts(QKeySequence::Undo);
     m_tabWidget->addWebAction(m_undo, QWebPage::Undo);
-    QAction *m_redo = editMenu->addAction(tr("&Redo"));
+    QAction *m_redo = editMenu->addAction(tr("恢复"));
     m_redo->setShortcuts(QKeySequence::Redo);
     m_tabWidget->addWebAction(m_redo, QWebPage::Redo);
     editMenu->addSeparator();
-    QAction *m_cut = editMenu->addAction(tr("Cu&t"));
+    QAction *m_cut = editMenu->addAction(tr("剪切"));
     m_cut->setShortcuts(QKeySequence::Cut);
     m_tabWidget->addWebAction(m_cut, QWebPage::Cut);
-    QAction *m_copy = editMenu->addAction(tr("&Copy"));
+    QAction *m_copy = editMenu->addAction(tr("复制"));
     m_copy->setShortcuts(QKeySequence::Copy);
     m_tabWidget->addWebAction(m_copy, QWebPage::Copy);
-    QAction *m_paste = editMenu->addAction(tr("&Paste"));
+    QAction *m_paste = editMenu->addAction(tr("粘贴"));
     m_paste->setShortcuts(QKeySequence::Paste);
     m_tabWidget->addWebAction(m_paste, QWebPage::Paste);
     editMenu->addSeparator();
 
-    QAction *m_find = editMenu->addAction(tr("&Find"));
+    QAction *m_find = editMenu->addAction(tr("在页面内查找"));
     m_find->setShortcuts(QKeySequence::Find);
     connect(m_find, SIGNAL(triggered()), this, SLOT(slotEditFind()));
     new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(slotEditFind()));
 
-    QAction *m_findNext = editMenu->addAction(tr("&Find Next"));
+    QAction *m_findNext = editMenu->addAction(tr("查找下一个"));
     m_findNext->setShortcuts(QKeySequence::FindNext);
     connect(m_findNext, SIGNAL(triggered()), this, SLOT(slotEditFindNext()));
 
-    QAction *m_findPrevious = editMenu->addAction(tr("&Find Previous"));
+    QAction *m_findPrevious = editMenu->addAction(tr("查找上一个"));
     m_findPrevious->setShortcuts(QKeySequence::FindPrevious);
     connect(m_findPrevious, SIGNAL(triggered()), this, SLOT(slotEditFindPrevious()));
 
     editMenu->addSeparator();
-    editMenu->addAction(tr("&Preferences"), this, SLOT(slotPreferences()), tr("Ctrl+,"));
+    editMenu->addAction(tr("设置"), this, SLOT(slotPreferences()), tr("Ctrl+,"));
 
-    // View
-    QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
+    // 一级菜单-查看
+    QMenu *viewMenu = menuBar()->addMenu(tr("查看"));
 
     m_viewBookmarkBar = new QAction(this);
     updateBookmarksToolbarActionText(true);
@@ -343,55 +344,55 @@ void BrowserMainWindow::setupMenu()
 
     viewMenu->addSeparator();
 
-    m_stop = viewMenu->addAction(tr("&Stop"));
+    m_stop = viewMenu->addAction(tr("停止"));
     QList<QKeySequence> shortcuts;
     shortcuts.append(QKeySequence(Qt::CTRL | Qt::Key_Period));
     shortcuts.append(Qt::Key_Escape);
     m_stop->setShortcuts(shortcuts);
     m_tabWidget->addWebAction(m_stop, QWebPage::Stop);
 
-    m_reload = viewMenu->addAction(tr("Reload Page"));
+    m_reload = viewMenu->addAction(tr("重新加载页面"));
     m_reload->setShortcuts(QKeySequence::Refresh);
     m_tabWidget->addWebAction(m_reload, QWebPage::Reload);
 
-    viewMenu->addAction(tr("Zoom &In"), this, SLOT(slotViewZoomIn()), QKeySequence(Qt::CTRL | Qt::Key_Plus));
-    viewMenu->addAction(tr("Zoom &Out"), this, SLOT(slotViewZoomOut()), QKeySequence(Qt::CTRL | Qt::Key_Minus));
-    viewMenu->addAction(tr("Reset &Zoom"), this, SLOT(slotViewResetZoom()), QKeySequence(Qt::CTRL | Qt::Key_0));
-    QAction *zoomTextOnlyAction = viewMenu->addAction(tr("Zoom &Text Only"));
+    viewMenu->addAction(tr("放大"), this, SLOT(slotViewZoomIn()), QKeySequence(Qt::CTRL | Qt::Key_Plus));
+    viewMenu->addAction(tr("缩小"), this, SLOT(slotViewZoomOut()), QKeySequence(Qt::CTRL | Qt::Key_Minus));
+    viewMenu->addAction(tr("恢复页面"), this, SLOT(slotViewResetZoom()), QKeySequence(Qt::CTRL | Qt::Key_0));
+    QAction *zoomTextOnlyAction = viewMenu->addAction(tr("只放大文本"));
     connect(zoomTextOnlyAction, SIGNAL(toggled(bool)), this, SLOT(slotViewZoomTextOnly(bool)));
     zoomTextOnlyAction->setCheckable(true);
     zoomTextOnlyAction->setChecked(false);
 
     viewMenu->addSeparator();
-    viewMenu->addAction(tr("Page S&ource"), this, SLOT(slotViewPageSource()), tr("Ctrl+Alt+U"));
-    QAction *a = viewMenu->addAction(tr("&Full Screen"), this, SLOT(slotViewFullScreen(bool)),  Qt::Key_F11);
+    viewMenu->addAction(tr("查看源代码"), this, SLOT(slotViewPageSource()), tr("Ctrl+Alt+U"));
+    QAction *a = viewMenu->addAction(tr("全屏"), this, SLOT(slotViewFullScreen(bool)),  Qt::Key_F11);
     a->setCheckable(true);
 
-    // History
+    // 一级菜单-历史记录
     HistoryMenu *historyMenu = new HistoryMenu(this);
     connect(historyMenu, SIGNAL(openUrl(QUrl)),
             m_tabWidget, SLOT(loadUrlInCurrentTab(QUrl)));
     connect(historyMenu, SIGNAL(hovered(QString)), this,
             SLOT(slotUpdateStatusbar(QString)));
-    historyMenu->setTitle(tr("Hi&story"));
+    historyMenu->setTitle(tr("历史记录"));
     menuBar()->addMenu(historyMenu);
     QList<QAction*> historyActions;
 
-    m_historyBack = new QAction(tr("Back"), this);
+    m_historyBack = new QAction(tr("返回"), this);
     m_tabWidget->addWebAction(m_historyBack, QWebPage::Back);
     m_historyBack->setShortcuts(QKeySequence::Back);
     m_historyBack->setIconVisibleInMenu(false);
 
-    m_historyForward = new QAction(tr("Forward"), this);
+    m_historyForward = new QAction(tr("前进"), this);
     m_tabWidget->addWebAction(m_historyForward, QWebPage::Forward);
     m_historyForward->setShortcuts(QKeySequence::Forward);
     m_historyForward->setIconVisibleInMenu(false);
 
-    QAction *m_historyHome = new QAction(tr("Home"), this);
+    QAction *m_historyHome = new QAction(tr("主页"), this);
     connect(m_historyHome, SIGNAL(triggered()), this, SLOT(slotHome()));
     m_historyHome->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_H));
 
-    m_restoreLastSession = new QAction(tr("Restore Last Session"), this);
+    m_restoreLastSession = new QAction(tr("恢复最后一次记录"), this);
     connect(m_restoreLastSession, SIGNAL(triggered()), BrowserApplication::instance(), SLOT(restoreLastSession()));
     m_restoreLastSession->setEnabled(BrowserApplication::instance()->canRestoreSession());
 
@@ -402,20 +403,20 @@ void BrowserMainWindow::setupMenu()
     historyActions.append(m_restoreLastSession);
     historyMenu->setInitialActions(historyActions);
 
-    // Bookmarks
+    // 一级菜单-收藏夹
     BookmarksMenu *bookmarksMenu = new BookmarksMenu(this);
     connect(bookmarksMenu, SIGNAL(openUrl(QUrl)),
             m_tabWidget, SLOT(loadUrlInCurrentTab(QUrl)));
     connect(bookmarksMenu, SIGNAL(hovered(QString)),
             this, SLOT(slotUpdateStatusbar(QString)));
-    bookmarksMenu->setTitle(tr("&Bookmarks"));
+    bookmarksMenu->setTitle(tr("收藏夹"));
     menuBar()->addMenu(bookmarksMenu);
 
     QList<QAction*> bookmarksActions;
 
-    QAction *showAllBookmarksAction = new QAction(tr("Show All Bookmarks"), this);
+    QAction *showAllBookmarksAction = new QAction(tr("整理收藏夹"), this);
     connect(showAllBookmarksAction, SIGNAL(triggered()), this, SLOT(slotShowBookmarksDialog()));
-    m_addBookmark = new QAction(QIcon(QLatin1String(":addbookmark.png")), tr("Add Bookmark..."), this);
+    m_addBookmark = new QAction(QIcon(QLatin1String(":addbookmark.png")), tr("添加收藏..."), this);
     m_addBookmark->setIconVisibleInMenu(false);
 
     connect(m_addBookmark, SIGNAL(triggered()), this, SLOT(slotAddBookmark()));
@@ -425,20 +426,22 @@ void BrowserMainWindow::setupMenu()
     bookmarksActions.append(m_addBookmark);
     bookmarksMenu->setInitialActions(bookmarksActions);
 
-    // Window
-    m_windowMenu = menuBar()->addMenu(tr("&Window"));
+    // 一级菜单-窗口
+    m_windowMenu = menuBar()->addMenu(tr("窗口"));
     connect(m_windowMenu, SIGNAL(aboutToShow()),
             this, SLOT(slotAboutToShowWindowMenu()));
     slotAboutToShowWindowMenu();
 
-    QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
-    toolsMenu->addAction(tr("Web &Search"), this, SLOT(slotWebSearch()), QKeySequence(tr("Ctrl+K", "Web Search")));
-    a = toolsMenu->addAction(tr("Enable Web &Inspector"), this, SLOT(slotToggleInspector(bool)));
+    // 一级菜单-工具
+    QMenu *toolsMenu = menuBar()->addMenu(tr("工具"));
+    toolsMenu->addAction(tr("网络搜索"), this, SLOT(slotWebSearch()), QKeySequence(tr("Ctrl+K", "Web Search")));
+    a = toolsMenu->addAction(tr("使用网络检查器"), this, SLOT(slotToggleInspector(bool)));
     a->setCheckable(true);
 
-    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
-    helpMenu->addAction(tr("About &Demo Browser"), this, SLOT(slotAboutApplication()));
+    // 一级菜单-帮助
+    QMenu *helpMenu = menuBar()->addMenu(tr("帮助"));
+    helpMenu->addAction(tr("关于Qt"), qApp, SLOT(aboutQt()));
+    helpMenu->addAction(tr("关于54browser"), this, SLOT(slotAboutApplication()));
 }
 
 void BrowserMainWindow::setupToolBar()
@@ -525,17 +528,17 @@ void BrowserMainWindow::slotViewBookmarksBar()
 
 void BrowserMainWindow::updateStatusbarActionText(bool visible)
 {
-    m_viewStatusbar->setText(!visible ? tr("Show Status Bar") : tr("Hide Status Bar"));
+    m_viewStatusbar->setText(!visible ? tr("显示状态栏") : tr("隐藏状态栏"));
 }
 
 void BrowserMainWindow::updateToolbarActionText(bool visible)
 {
-    m_viewToolbar->setText(!visible ? tr("Show Toolbar") : tr("Hide Toolbar"));
+    m_viewToolbar->setText(!visible ? tr("显示工具栏") : tr("隐藏工具栏"));
 }
 
 void BrowserMainWindow::updateBookmarksToolbarActionText(bool visible)
 {
-    m_viewBookmarkBar->setText(!visible ? tr("Show Bookmarks bar") : tr("Hide Bookmarks bar"));
+    m_viewBookmarkBar->setText(!visible ? tr("显示收藏栏") : tr("隐藏收藏栏"));
 }
 
 void BrowserMainWindow::slotViewStatusbar()
@@ -550,6 +553,10 @@ void BrowserMainWindow::slotViewStatusbar()
     m_autoSaver->changeOccurred();
 }
 
+/**
+ * 根据QUrl加载文件
+ * @param url 本地QUrl地址
+ */
 void BrowserMainWindow::loadUrl(const QUrl &url)
 {
     if (!currentTab() || !url.isValid())
@@ -570,6 +577,9 @@ void BrowserMainWindow::slotSelectLineEdit()
     m_tabWidget->currentLineEdit()->setFocus();
 }
 
+/**
+ * 一级菜单-文件-保存网页
+ */
 void BrowserMainWindow::slotFileSaveAs()
 {
     BrowserApplication::downloadManager()->download(currentTab()->url(), true);
@@ -589,27 +599,28 @@ void BrowserMainWindow::slotUpdateStatusbar(const QString &string)
 void BrowserMainWindow::slotUpdateWindowTitle(const QString &title)
 {
     if (title.isEmpty()) {
-        setWindowTitle(tr("Qt Demo Browser"));
+        setWindowTitle(tr("54browser"));
     } else {
 #if defined(Q_OS_OSX)
         setWindowTitle(title);
 #else
-        setWindowTitle(tr("%1 - Qt Demo Browser", "Page title and Browser name").arg(title));
+        setWindowTitle(tr("%1 - 54browser", "页面标题和浏览器名称").arg(title));
 #endif
     }
 }
 
 void BrowserMainWindow::slotAboutApplication()
 {
-    QMessageBox::about(this, tr("About"), tr(
-        "Version %1"
-        "<p>This demo demonstrates Qt's "
-        "webkit facilities in action, providing an example "
-        "browser for you to experiment with.<p>"
-        "<p>QtWebKit is based on the Open Source WebKit Project developed at <a href=\"http://webkit.org/\">http://webkit.org/</a>."
+    QMessageBox::about(this, tr("关于"), tr(
+        "版本：%1"
+        "<p>基于Qt创建的Linux系统下的浏览器.<p>"
+        "<p>54browser是基于开源Webkit项目开发<a href=\"http://webkit.org/\">http://webkit.org/</a>."
         ).arg(QCoreApplication::applicationVersion()));
 }
 
+/**
+ * 一级菜单-文件-新建窗口
+ */
 void BrowserMainWindow::slotFileNew()
 {
     BrowserApplication::instance()->newMainWindow();
@@ -617,10 +628,13 @@ void BrowserMainWindow::slotFileNew()
     mw->slotHome();
 }
 
+/**
+ * 一级菜单-文件-打开文件
+ */
 void BrowserMainWindow::slotFileOpen()
 {
-    QString file = QFileDialog::getOpenFileName(this, tr("Open Web Resource"), QString(),
-            tr("Web Resources (*.html *.htm *.svg *.png *.gif *.svgz);;All files (*.*)"));
+    QString file = QFileDialog::getOpenFileName(this, tr("打开一个(网页)文件"), QString(),
+            tr("网页 (*.html *.htm *.svg *.png *.gif *.svgz);;全部文件 (*.*)"));
 
     if (file.isEmpty())
         return;
@@ -628,6 +642,9 @@ void BrowserMainWindow::slotFileOpen()
     loadPage(file);
 }
 
+/**
+ * 一级菜单-文件-打印预览
+ */
 void BrowserMainWindow::slotFilePrintPreview()
 {
 #ifndef QT_NO_PRINTPREVIEWDIALOG
@@ -640,6 +657,9 @@ void BrowserMainWindow::slotFilePrintPreview()
 #endif
 }
 
+/**
+ * 一级菜单-文件-打印
+ */
 void BrowserMainWindow::slotFilePrint()
 {
     if (!currentTab())
@@ -647,24 +667,31 @@ void BrowserMainWindow::slotFilePrint()
     printRequested(currentTab()->page()->mainFrame());
 }
 
+/**
+ * 请求打印
+ * @param frame
+ */
 void BrowserMainWindow::printRequested(QWebFrame *frame)
 {
 #ifndef QT_NO_PRINTDIALOG
     QPrinter printer;
     QPrintDialog *dialog = new QPrintDialog(&printer, this);
-    dialog->setWindowTitle(tr("Print Document"));
+    dialog->setWindowTitle(tr("打印网页(%1)").arg(frame->title()));
     if (dialog->exec() != QDialog::Accepted)
         return;
     frame->print(&printer);
 #endif
 }
 
+/**
+ * 一级菜单-文件-开启隐私浏览
+ */
 void BrowserMainWindow::slotPrivateBrowsing()
 {
     QWebSettings *settings = QWebSettings::globalSettings();
     bool pb = settings->testAttribute(QWebSettings::PrivateBrowsingEnabled);
     if (!pb) {
-        QString title = tr("Are you sure you want to turn on private browsing?");
+        QString title = tr("你确定要开启隐私浏览模式?");
         QString text = tr("<b>%1</b><br><br>When private browsing in turned on,"
             " webpages are not added to the history,"
             " items are automatically removed from the Downloads window," \
@@ -820,6 +847,9 @@ void BrowserMainWindow::slotToggleInspector(bool enable)
     }
 }
 
+/**
+ * 切换焦点（地址栏与当前Tab）
+ */
 void BrowserMainWindow::slotSwapFocus()
 {
     if (currentTab()->hasFocus())
@@ -828,6 +858,10 @@ void BrowserMainWindow::slotSwapFocus()
         currentTab()->setFocus();
 }
 
+/**
+ * 根据本地文件系统地址读取文件
+ * @param page 本地文件系统地址
+ */
 void BrowserMainWindow::loadPage(const QString &page)
 {
     QUrl url = QUrl::fromUserInput(page);
@@ -839,6 +873,10 @@ TabWidget *BrowserMainWindow::tabWidget() const
     return m_tabWidget;
 }
 
+/**
+ * 当前网页选项卡
+ * @return
+ */
 WebView *BrowserMainWindow::currentTab() const
 {
     return m_tabWidget->currentWebView();

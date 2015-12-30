@@ -249,6 +249,9 @@ BookmarksModel *BookmarksManager::bookmarksModel()
     return m_bookmarkModel;
 }
 
+/**
+ * 一级菜单-文件-导入收藏夹
+ */
 void BookmarksManager::importBookmarks()
 {
     QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"),
@@ -270,6 +273,9 @@ void BookmarksManager::importBookmarks()
     addBookmark(menu(), importRootNode);
 }
 
+/**
+ * 一级菜单-文件-导出收藏夹
+ */
 void BookmarksManager::exportBookmarks()
 {
     QString fileName = QFileDialog::getSaveFileName(0, tr("Save File"),

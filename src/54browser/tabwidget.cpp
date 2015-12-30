@@ -335,11 +335,19 @@ void TabWidget::currentChanged(int index)
         webView->setFocus();
 }
 
+/**
+ * 新建一个Tab选项卡
+ * @return
+ */
 QAction *TabWidget::newTabAction() const
 {
     return m_newTabAction;
 }
 
+/**
+ * 关闭Tab选项卡
+ * @return
+ */
 QAction *TabWidget::closeTabAction() const
 {
     return m_closeTabAction;
@@ -370,6 +378,10 @@ QLineEdit *TabWidget::currentLineEdit() const
     return lineEdit(m_lineEdits->currentIndex());
 }
 
+/**
+ * 获得一个当前WebView
+ * @return
+ */
 WebView *TabWidget::currentWebView() const
 {
     return webView(currentIndex());
