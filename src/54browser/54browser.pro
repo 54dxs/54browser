@@ -1,5 +1,6 @@
 TEMPLATE = app
 TARGET = 54browser
+DESTDIR += ../bin
 QT += webkitwidgets network widgets printsupport
 
 qtHaveModule(uitools):!embedded: QT += uitools
