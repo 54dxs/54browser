@@ -428,8 +428,7 @@ void BrowserMainWindow::setupMenu()
 
     // 一级菜单-窗口
     m_windowMenu = menuBar()->addMenu(tr("窗口"));
-    connect(m_windowMenu, SIGNAL(aboutToShow()),
-            this, SLOT(slotAboutToShowWindowMenu()));
+    connect(m_windowMenu, SIGNAL(aboutToShow()), this, SLOT(slotAboutToShowWindowMenu()));
     slotAboutToShowWindowMenu();
 
     // 一级菜单-工具
@@ -691,17 +690,15 @@ void BrowserMainWindow::slotPrivateBrowsing()
     QWebSettings *settings = QWebSettings::globalSettings();
     bool pb = settings->testAttribute(QWebSettings::PrivateBrowsingEnabled);
     if (!pb) {
-        QString title = tr("你确定要开启隐私浏览模式?");
-        QString text = tr("<b>%1</b><br><br>When private browsing in turned on,"
-            " webpages are not added to the history,"
-            " items are automatically removed from the Downloads window," \
-            " new cookies are not stored, current cookies can't be accessed," \
-            " site icons wont be stored, session wont be saved, " \
-            " and searches are not added to the pop-up menu in the Google search box." \
-            "  Until you close the window, you can still click the Back and Forward buttons" \
-            " to return to the webpages you have opened.").arg(title);
+        QString title = tr("你确定要开启隐私浏览模式？");
+        QString text = tr("<b>%1</b><br><br>当隐私模式开启后，你浏览的网页不会保存至历史记录，"
+            "条目会自动从下载窗口中移除，" \
+            "新的cookies不会被保存，当前的cookies不可访问，" \
+            "网站的icons不会被存储，session不会被保存，" \
+            "搜索项不会被添加到搜索框的下拉框中。" \
+            "直到你关闭窗口，你还可以单击“后退”和“前进”按钮返回到你打开的网页。").arg(title);
 
-        QMessageBox::StandardButton button = QMessageBox::question(this, QString(), text,
+        QMessageBox::StandardButton button = QMessageBox::question(this, QString("温馨提示"), text,
                                QMessageBox::Ok | QMessageBox::Cancel,
                                QMessageBox::Ok);
         if (button == QMessageBox::Ok) {
@@ -719,12 +716,16 @@ void BrowserMainWindow::slotPrivateBrowsing()
     }
 }
 
+/**
+ * 关闭浏览器确认框
+ * @param event
+ */
 void BrowserMainWindow::closeEvent(QCloseEvent *event)
 {
     if (m_tabWidget->count() > 1) {
         int ret = QMessageBox::warning(this, QString(),
-                           tr("Are you sure you want to close the window?"
-                              "  There are %1 tabs open").arg(m_tabWidget->count()),
+                           tr("你确定要关闭浏览器吗？"
+                              "总共打开了 %1 个选项卡").arg(m_tabWidget->count()),
                            QMessageBox::Yes | QMessageBox::No,
                            QMessageBox::No);
         if (ret == QMessageBox::No) {
@@ -736,21 +737,27 @@ void BrowserMainWindow::closeEvent(QCloseEvent *event)
     deleteLater();
 }
 
+/**
+ * 一级菜单-编辑-在页面内查找
+ */
 void BrowserMainWindow::slotEditFind()
 {
     if (!currentTab())
         return;
     bool ok;
-    QString search = QInputDialog::getText(this, tr("Find"),
-                                          tr("Text:"), QLineEdit::Normal,
+    QString search = QInputDialog::getText(this, tr("查找"),
+                                          tr("要查找文本:"), QLineEdit::Normal,
                                           m_lastSearch, &ok);
     if (ok && !search.isEmpty()) {
         m_lastSearch = search;
         if (!currentTab()->findText(m_lastSearch))
-            slotUpdateStatusbar(tr("\"%1\" not found.").arg(m_lastSearch));
+            slotUpdateStatusbar(tr("\"%1\" 没有找到").arg(m_lastSearch));
     }
 }
 
+/**
+ * 一级菜单-编辑-查找下一个
+ */
 void BrowserMainWindow::slotEditFindNext()
 {
     if (!currentTab() && !m_lastSearch.isEmpty())
@@ -758,6 +765,9 @@ void BrowserMainWindow::slotEditFindNext()
     currentTab()->findText(m_lastSearch);
 }
 
+/**
+ * 一级菜单-编辑-查找上一个
+ */
 void BrowserMainWindow::slotEditFindPrevious()
 {
     if (!currentTab() && !m_lastSearch.isEmpty())
@@ -765,6 +775,9 @@ void BrowserMainWindow::slotEditFindPrevious()
     currentTab()->findText(m_lastSearch, QWebPage::FindBackward);
 }
 
+/**
+ * 一级菜单-查看-放大
+ */
 void BrowserMainWindow::slotViewZoomIn()
 {
     if (!currentTab())
@@ -772,6 +785,9 @@ void BrowserMainWindow::slotViewZoomIn()
     currentTab()->setZoomFactor(currentTab()->zoomFactor() + 0.1);
 }
 
+/**
+ * 一级菜单-查看-缩小
+ */
 void BrowserMainWindow::slotViewZoomOut()
 {
     if (!currentTab())
@@ -779,6 +795,9 @@ void BrowserMainWindow::slotViewZoomOut()
     currentTab()->setZoomFactor(currentTab()->zoomFactor() - 0.1);
 }
 
+/**
+ * 一级菜单-查看-恢复页面
+ */
 void BrowserMainWindow::slotViewResetZoom()
 {
     if (!currentTab())
@@ -786,6 +805,9 @@ void BrowserMainWindow::slotViewResetZoom()
     currentTab()->setZoomFactor(1.0);
 }
 
+/**
+ * 一级菜单-查看-只放大文本
+ */
 void BrowserMainWindow::slotViewZoomTextOnly(bool enable)
 {
     if (!currentTab())
@@ -793,6 +815,10 @@ void BrowserMainWindow::slotViewZoomTextOnly(bool enable)
     currentTab()->page()->settings()->setAttribute(QWebSettings::ZoomTextOnly, enable);
 }
 
+/**
+ * 一级菜单-查看-全屏
+ * @param makeFullScreen true：开启全屏；false：关闭全屏
+ */
 void BrowserMainWindow::slotViewFullScreen(bool makeFullScreen)
 {
     if (makeFullScreen) {
@@ -806,6 +832,9 @@ void BrowserMainWindow::slotViewFullScreen(bool makeFullScreen)
     }
 }
 
+/**
+ * 一级菜单-查看-查看源代码
+ */
 void BrowserMainWindow::slotViewPageSource()
 {
     if (!currentTab())
@@ -813,12 +842,15 @@ void BrowserMainWindow::slotViewPageSource()
 
     QString markup = currentTab()->page()->mainFrame()->toHtml();
     QPlainTextEdit *view = new QPlainTextEdit(markup);
-    view->setWindowTitle(tr("Page Source of %1").arg(currentTab()->title()));
+    view->setWindowTitle(tr("页面的源代码(%1)").arg(currentTab()->title()));
     view->setMinimumWidth(640);
     view->setAttribute(Qt::WA_DeleteOnClose);
     view->show();
 }
 
+/**
+ * 一级菜单-历史记录-主页
+ */
 void BrowserMainWindow::slotHome()
 {
     QSettings settings;
@@ -827,19 +859,25 @@ void BrowserMainWindow::slotHome()
     loadPage(home);
 }
 
+/**
+ * 一级菜单-工具-网络搜索
+ */
 void BrowserMainWindow::slotWebSearch()
 {
     m_toolbarSearch->lineEdit()->selectAll();
     m_toolbarSearch->lineEdit()->setFocus();
 }
 
+/**
+ * 一级菜单-工具-使用网络检查器
+ */
 void BrowserMainWindow::slotToggleInspector(bool enable)
 {
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, enable);
     if (enable) {
         int result = QMessageBox::question(this, tr("Web Inspector"),
-                                           tr("The web inspector will only work correctly for pages that were loaded after enabling.\n"
-                                           "Do you want to reload all pages?"),
+                                           tr("Web Inspector只有在页面被正确加载后才可启用.\n"
+                                           "你想重新载入所有的网页吗？"),
                                            QMessageBox::Yes | QMessageBox::No);
         if (result == QMessageBox::Yes) {
             m_tabWidget->reloadAllTabs();
@@ -882,6 +920,10 @@ WebView *BrowserMainWindow::currentTab() const
     return m_tabWidget->currentWebView();
 }
 
+/**
+ * 加载进度
+ * @param progress 当前进度值(范围：0-100)
+ */
 void BrowserMainWindow::slotLoadProgress(int progress)
 {
     if (progress < 100 && progress > 0) {
@@ -891,13 +933,13 @@ void BrowserMainWindow::slotLoadProgress(int progress)
             m_stopIcon = style()->standardIcon(QStyle::SP_BrowserStop);
         m_stopReload->setIcon(m_stopIcon);
         connect(m_stopReload, SIGNAL(triggered()), m_stop, SLOT(trigger()));
-        m_stopReload->setToolTip(tr("Stop loading the current page"));
+        m_stopReload->setToolTip(tr("停止加载当前页面"));
     } else {
         m_chaseWidget->setAnimated(false);
         disconnect(m_stopReload, SIGNAL(triggered()), m_stop, SLOT(trigger()));
         m_stopReload->setIcon(m_reloadIcon);
         connect(m_stopReload, SIGNAL(triggered()), m_reload, SLOT(trigger()));
-        m_stopReload->setToolTip(tr("Reload the current page"));
+        m_stopReload->setToolTip(tr("重新加载当前页面"));
     }
 }
 
@@ -937,13 +979,16 @@ void BrowserMainWindow::slotAboutToShowForwardMenu()
     }
 }
 
+/**
+ * 一级菜单-窗口-下载
+ */
 void BrowserMainWindow::slotAboutToShowWindowMenu()
 {
     m_windowMenu->clear();
     m_windowMenu->addAction(m_tabWidget->nextTabAction());
     m_windowMenu->addAction(m_tabWidget->previousTabAction());
     m_windowMenu->addSeparator();
-    m_windowMenu->addAction(tr("Downloads"), this, SLOT(slotDownloadManager()), QKeySequence(tr("Alt+Ctrl+L", "Download Manager")));
+    m_windowMenu->addAction(tr("下载"), this, SLOT(slotDownloadManager()), QKeySequence(tr("Alt+Ctrl+L", "下载管理")));
 
     m_windowMenu->addSeparator();
     QList<BrowserMainWindow*> windows = BrowserApplication::instance()->mainWindows();
