@@ -46,11 +46,10 @@
 #include <QtCore/QBasicTimer>
 #include <QtCore/QTime>
 
-/*
-    This class will call the save() slot on the parent object when the parent changes.
-    It will wait several seconds after changed() to combining multiple changes and
-    prevent continuous writing to disk.
-  */
+/**
+ * 本类将会在父类发生changes时，调用父类的save()槽函数，
+ * 在多个changed()并发时，将等待几秒以防止连续写入磁盘
+ */
 class AutoSaver : public QObject {
 
 Q_OBJECT

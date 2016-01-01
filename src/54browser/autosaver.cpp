@@ -57,14 +57,18 @@ AutoSaver::AutoSaver(QObject *parent) : QObject(parent)
 AutoSaver::~AutoSaver()
 {
     if (m_timer.isActive())
-        qWarning() << "AutoSaver: still active when destroyed, changes not saved.";
+        qWarning() << "AutoSaver: 要被销毁的窗口还是活动状态的，此时的changes不被保存";
 }
 
+/**
+ * 当change发生后
+ */
 void AutoSaver::changeOccurred()
 {
     if (m_firstChange.isNull())
         m_firstChange.start();
 
+    //如果超时
     if (m_firstChange.elapsed() > MAXWAIT) {
         saveIfNeccessary();
     } else {
@@ -72,6 +76,10 @@ void AutoSaver::changeOccurred()
     }
 }
 
+/**
+ * 定时器事件
+ * @param event
+ */
 void AutoSaver::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == m_timer.timerId()) {
@@ -81,6 +89,9 @@ void AutoSaver::timerEvent(QTimerEvent *event)
     }
 }
 
+/**
+ * 保存如果是必须的
+ */
 void AutoSaver::saveIfNeccessary()
 {
     if (!m_timer.isActive())
@@ -88,7 +99,7 @@ void AutoSaver::saveIfNeccessary()
     m_timer.stop();
     m_firstChange = QTime();
     if (!QMetaObject::invokeMethod(parent(), "save", Qt::DirectConnection)) {
-        qWarning() << "AutoSaver: error invoking slot save() on parent";
+        qWarning() << "AutoSaver: 调用parent的save()槽函数错误";
     }
 }
 

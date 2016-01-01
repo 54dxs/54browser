@@ -119,6 +119,11 @@ XbelReader::XbelReader()
 {
 }
 
+/**
+ * 根据文件名去读取本地的一个收藏夹xbel文件
+ * @param fileName 文件名
+ * @return
+ */
 BookmarkNode *XbelReader::read(const QString &fileName)
 {
     QFile file(fileName);
@@ -129,22 +134,31 @@ BookmarkNode *XbelReader::read(const QString &fileName)
     return read(&file);
 }
 
+/**
+ * 根据文件流对象去读取里面的文本信息
+ * @param device 文件对象
+ * @return
+ */
 BookmarkNode *XbelReader::read(QIODevice *device)
 {
     BookmarkNode *root = new BookmarkNode(BookmarkNode::Root);
-    setDevice(device);
-    if (readNextStartElement()) {
-        QString version = attributes().value(QLatin1String("version")).toString();
-        if (name() == QLatin1String("xbel")
+    setDevice(device);//将当前device重置为初始化状态
+    if (readNextStartElement()) {//读取文档节点
+        QString version = attributes().value(QLatin1String("version")).toString();//属性
+        if (name() == QLatin1String("xbel")//节点名
             && (version.isEmpty() || version == QLatin1String("1.0"))) {
             readXBEL(root);
         } else {
-            raiseError(QObject::tr("The file is not an XBEL version 1.0 file."));
+            raiseError(QObject::tr("这个不是一个XBEL文件，或者version不是1.0"));
         }
     }
     return root;
 }
 
+/**
+ * 读取XBEL文件
+ * @param parent
+ */
 void XbelReader::readXBEL(BookmarkNode *parent)
 {
     Q_ASSERT(isStartElement() && name() == QLatin1String("xbel"));
@@ -253,16 +267,50 @@ bool XbelWriter::write(QIODevice *device, const BookmarkNode *root)
     return true;
 }
 
+/**
+ * 书写一个书签信息到本地xbel文件
+ * @param parent
+ */
 void XbelWriter::writeItem(const BookmarkNode *parent)
 {
+/*
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xbel>
+<xbel version="1.0">
+    <folder folded="yes">
+        <title>Bookmarks Bar</title>
+        <bookmark href="http://fanyi.baidu.com/#auto/zh/">
+            <title>百度翻译</title>
+        </bookmark>
+        <bookmark href="https://www.baidu.com/">
+            <title>百度一下，你就知道</title>
+        </bookmark>
+        <bookmark href="http://qt-project.org/">
+            <title>Qt Home Page</title>
+        </bookmark>
+        <bookmark href="http://webkit.org/">
+            <title>WebKit.org</title>
+        </bookmark>
+    </folder>
+    <folder folded="yes">
+        <title>Bookmarks Menu</title>
+        <bookmark href="http://reddit.com/">
+            <title>reddit.com: what's new online!</title>
+        </bookmark>
+        <bookmark href="http://fanyi.baidu.com/#auto/zh/">
+            <title>百度翻译</title>
+        </bookmark>
+    </folder>
+</xbel>
+*/
     switch (parent->type()) {
-    case BookmarkNode::Folder:
-        writeStartElement(QLatin1String("folder"));
-        writeAttribute(QLatin1String("folded"), parent->expanded ? QLatin1String("no") : QLatin1String("yes"));
-        writeTextElement(QLatin1String("title"), parent->title);
+    case BookmarkNode::Folder://创建一个书签夹
+        writeStartElement(QLatin1String("folder"));//开始一个名字为“folder”的Element
+        writeAttribute(QLatin1String("folded"), parent->expanded ? QLatin1String("no") : QLatin1String("yes"));//给Element添加一个folded属性
+        writeTextElement(QLatin1String("title"), parent->title);//添加一个名字为“title”的文本Element子节点
         for (int i = 0; i < parent->children().count(); ++i)
             writeItem(parent->children().at(i));
-        writeEndElement();
+        writeEndElement();//结束Element
         break;
     case BookmarkNode::Bookmark:
         writeStartElement(QLatin1String("bookmark"));

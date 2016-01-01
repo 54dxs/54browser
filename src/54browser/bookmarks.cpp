@@ -72,12 +72,9 @@ BookmarksManager::BookmarksManager(QObject *parent)
     , m_bookmarkRootNode(0)
     , m_bookmarkModel(0)
 {
-    connect(this, SIGNAL(entryAdded(BookmarkNode*)),
-            m_saveTimer, SLOT(changeOccurred()));
-    connect(this, SIGNAL(entryRemoved(BookmarkNode*,int,BookmarkNode*)),
-            m_saveTimer, SLOT(changeOccurred()));
-    connect(this, SIGNAL(entryChanged(BookmarkNode*)),
-            m_saveTimer, SLOT(changeOccurred()));
+    connect(this, SIGNAL(entryAdded(BookmarkNode*)), m_saveTimer, SLOT(changeOccurred()));
+    connect(this, SIGNAL(entryRemoved(BookmarkNode*,int,BookmarkNode*)), m_saveTimer, SLOT(changeOccurred()));
+    connect(this, SIGNAL(entryChanged(BookmarkNode*)), m_saveTimer, SLOT(changeOccurred()));
 }
 
 BookmarksManager::~BookmarksManager()
@@ -376,6 +373,11 @@ BookmarksModel::BookmarksModel(BookmarksManager *bookmarkManager, QObject *paren
             this, SLOT(entryChanged(BookmarkNode*)));
 }
 
+/**
+ * 获得一个QModelIndex数据模型
+ * @param node
+ * @return
+ */
 QModelIndex BookmarksModel::index(BookmarkNode *node) const
 {
     BookmarkNode *parent = node->parent();
@@ -384,31 +386,45 @@ QModelIndex BookmarksModel::index(BookmarkNode *node) const
     return createIndex(parent->children().indexOf(node), 0, node);
 }
 
+/**
+ * 自定义信号-添加一个书签
+ * @param item 要被添加的书签
+ */
 void BookmarksModel::entryAdded(BookmarkNode *item)
 {
-    Q_ASSERT(item && item->parent());
+    Q_ASSERT(item && item->parent());//断言
     int row = item->parent()->children().indexOf(item);
     BookmarkNode *parent = item->parent();
-    // item was already added so remove beore beginInsertRows is called
+    // 如果条目已经存在，则在添加前删除之前的
     parent->remove(item);
-    beginInsertRows(index(parent), row, row);
+    beginInsertRows(index(parent), row, row);//插入
     parent->add(item, row);
     endInsertRows();
 }
 
+/**
+ * 自定义信号-移除一个书签
+ * @param parent
+ * @param row
+ * @param item
+ */
 void BookmarksModel::entryRemoved(BookmarkNode *parent, int row, BookmarkNode *item)
 {
-    // item was already removed, re-add so beginRemoveRows works
+    // 避免删除书签差异，先将书签替换添加，然后再删除该书签，保证删除的正确性
     parent->add(item, row);
     beginRemoveRows(index(parent), row, row);
     parent->remove(item);
     endRemoveRows();
 }
 
+/**
+ * 自定义信号-修改书签
+ * @param item
+ */
 void BookmarksModel::entryChanged(BookmarkNode *item)
 {
     QModelIndex idx = index(item);
-    emit dataChanged(idx, idx);
+    emit dataChanged(idx, idx);//发送信号通知修改数据
 }
 
 bool BookmarksModel::removeRows(int row, int count, const QModelIndex &parent)

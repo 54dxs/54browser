@@ -45,13 +45,16 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDateTime>
 
+/**
+ * 一个书签对象
+ */
 class BookmarkNode
 {
 public:
     enum Type {
-        Root,
-        Folder,
-        Bookmark,
+        Root,//根目录
+        Folder,//书签夹
+        Bookmark,//书签
         Separator
     };
 
@@ -79,6 +82,9 @@ private:
 
 };
 
+/**
+ * 创建及书写XML文档
+ */
 class XbelReader : public QXmlStreamReader
 {
 public:
@@ -96,7 +102,9 @@ private:
 };
 
 #include <QtCore/QXmlStreamWriter>
-
+/**
+ * 读取XMl文档
+ */
 class XbelWriter : public QXmlStreamWriter
 {
 public:

@@ -47,9 +47,9 @@
 
 #include <QtWidgets/QUndoCommand>
 
-/*!
-    Bookmark manager, owner of the bookmarks, loads, saves and basic tasks
-  */
+/**
+ * 收藏夹管理器，可管理收藏夹，加载，保存和基础任务
+ */
 class AutoSaver;
 class BookmarkNode;
 class BookmarksModel;

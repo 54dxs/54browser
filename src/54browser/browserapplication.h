@@ -59,6 +59,10 @@ class CookieJar;
 class DownloadManager;
 class HistoryManager;
 class NetworkAccessManager;
+
+/**
+ * 浏览器应用程序
+ */
 class BrowserApplication : public QApplication
 {
     Q_OBJECT
@@ -111,8 +115,8 @@ private:
     static BookmarksManager *s_bookmarksManager;
 
     QList<QPointer<BrowserMainWindow> > m_mainWindows;
-    QLocalServer *m_localServer;
-    QByteArray m_lastSession;
+    QLocalServer *m_localServer;//本地服务
+    QByteArray m_lastSession;//获得本地的最后一个保存的Session
     QString m_initialUrl;
     bool m_correctlyInitialized;
 
